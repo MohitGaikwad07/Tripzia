@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Add Trip | Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 md:px-8 md:py-10">
+  <div class="mx-auto max-w-3xl">
+    <section class="app-panel rounded-[2rem] p-6 md:p-8">
+      <div class="mb-8">
+        <p class="section-label">Admin Trip Create</p>
+        <h1 class="hero-title mt-3 text-4xl font-extrabold md:text-5xl">Add a new published trip</h1>
+        <p class="muted-copy mt-4 text-base leading-8">
+          Create a public trip entry for the dashboard library and admin workspace.
+        </p>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Trip title</label>
+          <input type="text" name="title" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Destination</label>
+          <input type="text" name="destination" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Subtitle</label>
+          <input type="text" name="subtitle" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Summary</label>
+          <textarea name="summary" rows="4" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Places covered</label>
+          <textarea name="places_covered" rows="4" placeholder="One place per line" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Pricing details</label>
+          <textarea name="pricing_details" rows="4" placeholder="One pricing point per line" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Review summary</label>
+            <textarea name="review_summary" rows="4" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Review rating</label>
+            <input type="number" name="review_rating" step="0.1" min="0" max="5" placeholder="4.7" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Inclusions / highlights</label>
+          <textarea name="inclusions" rows="4" placeholder="One point per line" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Upload image from device</label>
+          <input type="file" name="image_file" accept="image/*" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition file:mr-4 file:rounded-xl file:border-0 file:bg-[#7c5cff] file:px-4 file:py-2 file:font-semibold file:text-white">
+          <p class="mt-2 text-xs text-slate-400">Best for the dashboard hero and trip cards.</p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Duration (days)</label>
+            <input type="number" name="duration_days" value="3" min="1" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Price label</label>
+            <input type="text" name="price_label" placeholder="Rs. 18,000" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Trip style</label>
+            <input type="text" name="trip_style" placeholder="Cultural, Scenic, Luxury..." class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+        </div>
+
+        <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-200">
+          <input type="checkbox" name="is_public" checked class="h-4 w-4 rounded border-white/20 bg-transparent text-[#7c5cff]">
+          Publish this trip on the user dashboard
+        </label>
+
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <a href="{% url 'admin_dashboard' %}" class="text-sm font-semibold text-[#c8b4ff] hover:text-white">Back to admin dashboard</a>
+          <button type="submit" class="primary-button rounded-2xl px-8 py-4 text-base font-semibold transition">
+            Create trip
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

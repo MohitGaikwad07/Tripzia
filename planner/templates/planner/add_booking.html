@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 text-white md:px-8">
+  <div class="mx-auto max-w-3xl">
+    <section class="app-panel rounded-[2rem] p-8 md:p-10">
+      <p class="section-label">Admin Booking</p>
+      <h1 class="hero-title mt-3 text-4xl font-extrabold">Create Booking</h1>
+      <p class="muted-copy mt-4 max-w-2xl text-base leading-8">
+        Add a new booking record manually for a user and selected trip.
+      </p>
+
+      {% if messages %}
+      <div class="mt-6 space-y-3">
+        {% for message in messages %}
+        <div class="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-5 py-4 text-sm font-medium text-rose-100">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="mt-8 grid gap-5">
+        {% csrf_token %}
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">User</label>
+          <select name="user" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition" required>
+            <option value="">Select user</option>
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}{% if user.email %} - {{ user.email }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Trip</label>
+          <select name="trip" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition" required>
+            <option value="">Select trip</option>
+            {% for trip in trips %}
+            <option value="{{ trip.id }}">{{ trip.title }} - {{ trip.destination }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Traveler Name</label>
+            <input type="text" name="traveler_name" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition" required>
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Traveler Email</label>
+            <input type="email" name="traveler_email" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition" required>
+          </div>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Phone</label>
+            <input type="text" name="traveler_phone" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Travelers Count</label>
+            <input type="number" min="1" name="travelers_count" value="1" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Special Request</label>
+          <textarea name="special_request" rows="4" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+          <a href="{% url 'admin_dashboard' %}" class="text-sm font-semibold text-[#c8b4ff] hover:text-white">Back to admin dashboard</a>
+          <button type="submit" class="primary-button rounded-2xl px-6 py-4 text-sm font-semibold transition">
+            Create Booking
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

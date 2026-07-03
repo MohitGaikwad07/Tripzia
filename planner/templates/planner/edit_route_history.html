@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Route History | Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 md:px-8 md:py-10">
+  <div class="mx-auto max-w-3xl">
+    <section class="app-panel rounded-[2rem] p-6 md:p-8">
+      <div class="mb-8">
+        <p class="section-label">Route History Edit</p>
+        <h1 class="hero-title mt-3 text-4xl font-extrabold md:text-5xl">Update viewed route record</h1>
+        <p class="muted-copy mt-4 text-base leading-8">
+          Review the saved route data and update any admin notes or corrections.
+        </p>
+      </div>
+
+      <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Route title</label>
+          <input type="text" name="route_title" value="{{ history.route_title }}" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Destination</label>
+          <input type="text" name="destination" value="{{ history.destination }}" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Days</label>
+            <input type="number" name="days" value="{{ history.days }}" min="1" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Budget</label>
+            <input type="text" name="budget" value="{{ history.budget }}" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Cost</label>
+            <input type="text" name="total_estimated_cost" value="{{ history.total_estimated_cost }}" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Admin notes</label>
+          <textarea name="admin_notes" rows="5" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">{{ history.admin_notes }}</textarea>
+        </div>
+
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <a href="{% url 'admin_dashboard' %}" class="text-sm font-semibold text-[#c8b4ff] hover:text-white">Back to admin dashboard</a>
+          <button type="submit" class="primary-button rounded-2xl px-8 py-4 text-base font-semibold transition">
+            Save changes
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

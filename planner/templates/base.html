@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Travel Planner{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            map: {
+              paper: "#090513",
+              line: "#24173c",
+              stone: "#140c25",
+              fog: "#1a1130",
+              forest: "#6d4aff",
+              moss: "#a78bfa",
+              ocean: "#8b5cf6",
+              sand: "#ddd6fe",
+              ink: "#f8f5ff",
+              accent: "#c4b5fd"
+            }
+          },
+          boxShadow: {
+            soft: "0 30px 80px rgba(5, 2, 16, 0.42)",
+            panel: "0 20px 55px rgba(5, 2, 16, 0.36)",
+            glow: "0 0 0 1px rgba(196, 181, 253, 0.08), 0 24px 80px rgba(91, 33, 182, 0.28)"
+          },
+          borderRadius: {
+            "4xl": "2rem"
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html, body {
+      height: 100%;
+      font-family: "Manrope", sans-serif;
+      background: #090513;
+      color: #f8f5ff;
+    }
+
+    body {
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(124, 92, 255, 0.28), transparent 24%),
+        radial-gradient(circle at 76% 6%, rgba(109, 74, 255, 0.22), transparent 26%),
+        radial-gradient(circle at 62% 44%, rgba(139, 92, 246, 0.10), transparent 18%),
+        linear-gradient(180deg, #090513 0%, #0d0818 52%, #120b23 100%);
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #4a347c;
+      border-radius: 999px;
+      border: 2px solid #090513;
+    }
+
+    .contour-bg {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .noise-overlay {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .noise-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.025), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(196, 181, 253, 0.08), transparent 24%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .app-panel {
+      background: linear-gradient(180deg, rgba(24, 15, 44, 0.92), rgba(14, 9, 26, 0.92));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 1px rgba(124, 92, 255, 0.05), 0 24px 80px rgba(5, 2, 16, 0.34);
+      backdrop-filter: blur(22px);
+    }
+
+    .app-panel-soft {
+      background: linear-gradient(180deg, rgba(20, 13, 36, 0.9), rgba(11, 7, 20, 0.9));
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.04), 0 18px 60px rgba(5, 2, 16, 0.28);
+      backdrop-filter: blur(18px);
+    }
+
+    .app-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(196, 181, 253, 0.16);
+      background: rgba(139, 92, 246, 0.08);
+      padding: 0.75rem 1rem;
+      color: #d8ccff;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #bda7ff;
+    }
+
+    .hero-title {
+      color: #f8f5ff;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-title span {
+      color: #c8b4ff;
+    }
+
+    .muted-copy {
+      color: #b4aec9;
+    }
+
+    .primary-button {
+      background: linear-gradient(135deg, #7c5cff, #a855f7);
+      color: #ffffff;
+      box-shadow: 0 18px 50px rgba(91, 33, 182, 0.34);
+    }
+
+    .primary-button:hover {
+      filter: brightness(1.08);
+    }
+
+    .secondary-button {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #ece8ff;
+    }
+
+    .secondary-button:hover {
+      border-color: rgba(196, 181, 253, 0.28);
+      background: rgba(139, 92, 246, 0.08);
+    }
+
+    .field-shell {
+      background: rgba(9, 5, 19, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: #ffffff;
+    }
+
+    .field-shell:focus {
+      border-color: rgba(168, 139, 250, 0.78);
+      box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.18);
+    }
+
+    .leaflet-control-zoom a {
+      background: rgba(20, 13, 36, 0.92) !important;
+      color: #f8f5ff !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .leaflet-control-zoom {
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 18px !important;
+      overflow: hidden;
+      box-shadow: 0 20px 55px rgba(5, 2, 16, 0.3);
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: linear-gradient(180deg, rgba(24, 15, 44, 0.98), rgba(12, 8, 22, 0.98));
+      border: 1px solid rgba(196, 181, 253, 0.14);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(5, 2, 16, 0.32);
+      color: #f8f5ff;
+    }
+
+    .leaflet-popup-content {
+      margin: 0;
+      width: 230px;
+    }
+
+    .route-popup .leaflet-popup-content-wrapper {
+      background: linear-gradient(180deg, rgba(24, 15, 44, 0.98), rgba(12, 8, 22, 0.98));
+      border-radius: 14px;
+      border: 1px solid rgba(196, 181, 253, 0.14);
+      color: #f8f5ff;
+    }
+
+    .leaflet-routing-container,
+    .leaflet-routing-alt,
+    .leaflet-routing-collapse-btn {
+      display: none !important;
+    }
+
+    .leaflet-top.leaflet-right .leaflet-control,
+    .leaflet-top.leaflet-right .leaflet-routing-container {
+      display: none !important;
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="text-map-ink">
+  {% block content %}{% endblock %}
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

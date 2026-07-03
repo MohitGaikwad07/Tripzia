@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | Travel Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Manrope", sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen overflow-hidden bg-[#090513] text-white">
+  <div class="relative min-h-screen bg-[radial-gradient(circle_at_18%_10%,_rgba(124,92,255,0.3),_transparent_24%),radial-gradient(circle_at_82%_12%,_rgba(168,85,247,0.2),_transparent_24%),linear-gradient(180deg,_#090513,_#120b23)]">
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:34px_34px] opacity-40"></div>
+    <div class="absolute -left-8 top-16 h-72 w-72 rounded-full bg-[#7c5cff]/22 blur-3xl"></div>
+    <div class="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#a855f7]/18 blur-3xl"></div>
+    <div class="absolute bottom-[-6rem] right-[16%] h-72 w-72 rounded-full bg-[#6d4aff]/18 blur-3xl"></div>
+
+    <div class="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 lg:px-8">
+      <div class="grid w-full gap-10 lg:grid-cols-[1fr_0.92fr]">
+        <section class="hidden lg:flex lg:flex-col lg:justify-center">
+          <div class="inline-flex w-fit items-center rounded-full border border-[#c4b5fd]/20 bg-white/5 px-4 py-2 text-sm font-medium text-[#d7c9ff] backdrop-blur">
+            Premium travel workspace
+          </div>
+          <h1 class="mt-8 text-6xl font-extrabold leading-[0.95] tracking-[-0.05em] text-white">
+            Build Better
+            <span class="block text-[#c7b4ff]">Trip Journeys</span>
+          </h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+            Create your account to unlock AI-generated itineraries, interactive route mapping, and a polished planning experience from start to finish.
+          </p>
+
+          <div class="mt-12 grid max-w-2xl gap-4 md:grid-cols-2">
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+              <p class="text-sm text-slate-400">Route Generation</p>
+              <p class="mt-3 text-2xl font-bold text-white">Destination-aware plans</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+              <p class="text-sm text-slate-400">Workspace Design</p>
+              <p class="mt-3 text-2xl font-bold text-white">Premium dark UI</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(24,15,44,0.94),rgba(11,7,20,0.96))] p-8 shadow-[0_30px_80px_rgba(5,2,16,0.42)] backdrop-blur-2xl md:p-10">
+          <div class="mb-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#c8b4ff]">Create Account</p>
+            <h2 class="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-white">Start with a sharper travel workflow</h2>
+            <p class="mt-4 text-base leading-7 text-slate-300">
+              Set up your account and move from travel ideas to mapped itineraries in a single flow.
+            </p>
+          </div>
+
+          <form method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-200">Username</label>
+              <input type="text" name="username" placeholder="Choose a username" class="w-full rounded-2xl border border-white/10 bg-[#0c0717] px-4 py-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-[#9f7aea] focus:ring-4 focus:ring-[#7c5cff]/20" required>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-200">Password</label>
+              <input type="password" name="password" placeholder="Create a password" class="w-full rounded-2xl border border-white/10 bg-[#0c0717] px-4 py-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-[#9f7aea] focus:ring-4 focus:ring-[#7c5cff]/20" required>
+            </div>
+
+            <button type="submit" class="w-full rounded-2xl bg-[#7c5cff] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_45px_rgba(91,33,182,0.34)] transition hover:bg-[#916dff]">
+              Create Account
+            </button>
+          </form>
+
+          <div class="mt-8 border-t border-white/10 pt-6 text-sm text-slate-400">
+            Already have an account?
+            <a href="{% url 'login' %}" class="font-semibold text-[#c8b4ff] hover:text-white">Sign in</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% load static %}
+<div class="relative flex-1">
+  <div id="map" class="z-10 h-screen w-full"></div>
+
+  <div class="pointer-events-none absolute inset-x-0 top-0 z-20 flex flex-col gap-4 p-4 md:p-6">
+    <div class="pointer-events-auto mx-auto w-full max-w-3xl">
+      <div class="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(24,15,44,0.94),rgba(11,7,20,0.96))] shadow-soft backdrop-blur-2xl">
+        <div class="flex items-center">
+          <input id="searchInput" type="text" placeholder="Search city, landmark, or place..." class="w-full bg-transparent px-5 py-4 text-sm text-white outline-none placeholder:text-slate-500" />
+          <button onclick="searchLocation()" id="searchBtn" class="rounded-r-[1.7rem] bg-[linear-gradient(135deg,#7c5cff,#a855f7)] px-6 py-4 text-sm font-semibold text-white transition hover:brightness-110">
+            Search
+          </button>
+        </div>
+      </div>
+      <div id="suggestions" class="mt-2 hidden max-h-60 overflow-y-auto rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(24,15,44,0.96),rgba(11,7,20,0.98))] shadow-panel backdrop-blur-2xl"></div>
+    </div>
+  </div>
+
+  <div class="pointer-events-none absolute right-4 top-4 z-20 md:right-6 md:top-6">
+    <div class="pointer-events-auto">
+      <button onclick="locateUser()" class="secondary-button bg-purple-500 rounded-2xl px-4 py-3 text-sm font-semibold bg-gray-500 w-25 hover:bg-gray-500">
+        <i class="ri-map-pin-line text-lg"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJWcn-GZG188YKxkkhLAIIvUMU3_Jxets&libraries=places"></script>
+<script src="{% static 'planner/maps.js' %}?v={% now 'U' %}"></script>

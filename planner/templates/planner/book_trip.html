@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Book Trip | Travel Planner{% endblock %}
+
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 md:px-8 md:py-10">
+  <div class="mx-auto max-w-6xl">
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+      {% for message in messages %}
+      <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4 text-sm font-medium text-emerald-100">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid gap-8 lg:grid-cols-[1fr_0.95fr]">
+      <section class="app-panel overflow-hidden rounded-[2rem]">
+        <div
+          class="h-72 bg-cover bg-center"
+          style="background-image: linear-gradient(180deg, rgba(10,6,18,0.12), rgba(10,6,18,0.68)), url('{% if trip.image_file %}{{ trip.image_file.url }}{% else %}https://images.unsplash.com/photo-1526481280695-3c4691f8b3c6?auto=format&fit=crop&w=1200&q=80{% endif %}');"
+        ></div>
+        <div class="p-6 md:p-8">
+          <p class="section-label">Trip Details</p>
+          <h1 class="hero-title mt-3 text-4xl font-extrabold md:text-5xl">{{ trip.destination }}</h1>
+          <p class="mt-3 text-lg font-semibold text-slate-100">{{ trip.title }}</p>
+          <p class="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+            {{ trip.summary|default:trip.subtitle|default:"A curated travel package prepared by the admin team." }}
+          </p>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <span class="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              {{ trip.duration_days }} Days
+            </span>
+            {% if trip.price_label %}
+            <span class="rounded-full border border-[#c4b5fd]/25 bg-[#7c5cff]/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#dac9ff]">
+              {{ trip.price_label }}
+            </span>
+            {% endif %}
+            {% if trip.trip_style %}
+            <span class="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              {{ trip.trip_style }}
+            </span>
+            {% endif %}
+          </div>
+
+          <div class="mt-8 grid gap-4 md:grid-cols-2">
+            <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Destination</p>
+              <p class="mt-3 text-2xl font-extrabold text-white">{{ trip.destination }}</p>
+            </article>
+            <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Created By</p>
+              <p class="mt-3 text-2xl font-extrabold text-white">{{ trip.created_by.username }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-panel rounded-[2rem] p-6 md:p-8">
+        <div class="mb-8">
+          <p class="section-label">Booking Form</p>
+          <h2 class="hero-title mt-3 text-3xl font-extrabold md:text-4xl">Confirm your trip request</h2>
+          <p class="muted-copy mt-4 text-base leading-8">
+            Your selected trip details are already shown on the left. Fill in your contact details to save the booking.
+          </p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+          {% csrf_token %}
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Traveler name</label>
+            <input type="text" name="traveler_name" value="{{ prefill_name }}" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Traveler email</label>
+            <input type="email" name="traveler_email" value="{{ prefill_email }}" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-200">Travelers</label>
+              <input type="number" name="travelers_count" min="1" value="1" required class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-200">Phone</label>
+              <input type="text" name="traveler_phone" placeholder="+91 ..." class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-200">Special request</label>
+            <textarea name="special_request" rows="5" placeholder="Pickup request, hotel room preference, food notes, timing preferences..." class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <a href="{% url 'dashboard' %}" class="text-sm font-semibold text-[#c8b4ff] hover:text-white">Back to dashboard</a>
+            <button type="submit" class="primary-button rounded-2xl px-8 py-4 text-base font-semibold transition">
+              Confirm Booking
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

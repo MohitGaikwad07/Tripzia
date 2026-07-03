@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Travel Planner
+{% endblock %}
+
+{% block content %}
+
+<!-- main layout -->
+<div class="flex h-screen w-screen">
+
+    <!-- LEFT SIDEBAR -->
+    {% include "planner/sidebar.html" %}
+
+    <!-- RIGHT MAP AREA -->
+    {% include "planner/map_area.html" %}
+
+</div>
+
+<!-- Toast Notification -->
+{% include "planner/toast.html" %}
+
+{% endblock %}
+
+
+
+
+{% block scripts %}
+
+<script>
+  const showRoute = "{{ show_route|default:'' }}";
+
+  let tripPlacesFromBackend = [];
+  try {
+      const placesStr = "{{ trip.places|escapejs }}";
+      if (placesStr && placesStr.trim() !== "[]" && placesStr.trim() !== "") {
+          tripPlacesFromBackend = JSON.parse(placesStr);
+      }
+  } catch(e) {
+      console.error("Error parsing trip places from backend", e);
+  }
+</script>
+
+<script src="{% static 'planner/maps.js' %}?v={% now 'U' %}"></script>
+
+{% endblock %}
+

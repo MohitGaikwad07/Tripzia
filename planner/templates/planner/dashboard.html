@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Travel Planner{% endblock %}
+
+{% block content %}
+<style>
+  .hero-rotating {
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    will-change: opacity, transform;
+  }
+
+  .hero-rotating.is-fading {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .profile-menu {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform-origin: top right;
+  }
+
+  .profile-menu.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px) scale(0.98);
+  }
+</style>
+<div class="min-h-screen contour-bg noise-overlay px-3 py-4 md:px-5 md:py-6 xl:px-6">
+  <div class="mx-auto w-full max-w-[1680px]">
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+      {% for message in messages %}
+      <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4 text-sm font-medium text-emerald-100">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="relative overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#0d0818] shadow-[0_30px_90px_rgba(5,2,16,0.45)]">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style="background-image: linear-gradient(180deg, rgba(7,4,15,0.24), rgba(7,4,15,0.9)), url('https://www.realitypremedia.com/blog/wp-content/uploads/2016/01/Image-processing-for-Travel-website-849x450.jpg');"
+      ></div>
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:34px_34px] opacity-30"></div>
+
+      <div class="relative z-10 min-h-[68vh] p-5 md:p-8 xl:min-h-[72vh] xl:p-10">
+        <div class="mb-8 flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p class="text-2xl font-extrabold tracking-tight text-white md:text-5xl">TravelPlanner</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="{% url 'plan_trip' %}" class="primary-button rounded-2xl px-5 py-3 text-sm font-semibold transition">Create New Trip</a>
+            <a href="{% url 'home' %}" class="primary-button rounded-2xl px-5 py-3 text-sm font-semibold transition">Discover New Places </a>
+
+            <div class="relative">
+              <button id="profileMenuButton" type="button" class="flex h-12 w-12 items-center justify-center rounded-full border border-[#c4b5fd]/20 bg-[linear-gradient(135deg,#7c5cff,#a855f7)] text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(124,92,255,0.28)] transition hover:brightness-110">
+                {{ user.username|first|upper }}
+              </button>
+              <div id="profileMenu" class="profile-menu is-hidden absolute right-0 top-14 z-30 w-64 rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(24,15,44,0.97),rgba(11,7,20,0.99))] p-4 shadow-[0_20px_60px_rgba(5,2,16,0.35)] backdrop-blur-2xl">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-full border border-[#c4b5fd]/20 bg-[linear-gradient(135deg,#7c5cff,#a855f7)] text-sm font-extrabold text-white">
+                    {{ user.username|first|upper }}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">Signed in</p>
+                    <p class="truncate text-sm font-semibold text-white">{{ user.username }}</p>
+                  </div>
+                </div>
+                <div class="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                  <p><span class="text-white/55">Username:</span> {{ user.username }}</p>
+                  <p class="mt-2"><span class="text-white/55">Email:</span> {{ user.email|default:"Not added" }}</p>
+                </div>
+                <a href="{% url 'logout' %}" class="secondary-button mt-4 block rounded-2xl px-4 py-3 text-center text-sm font-semibold transition">
+                  Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-end xl:grid-cols-[minmax(0,1fr)_210px]">
+          <div class="max-w-3xl">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-white/60">User dashboard</p>
+            <h1 class="mt-5 text-5xl font-extrabold leading-[0.92] tracking-[-0.06em] text-white md:text-6xl xl:text-7xl">
+              {% if hero_trip %}
+              <span id="hero-visit-prefix">Visit</span>
+              <span id="hero-destination" class="hero-rotating block text-[#d9c5ff]">{{ hero_trip.destination|upper }}</span>
+              {% else %}
+              Plan your <span class="block text-[#d9c5ff]">next escape</span>
+              {% endif %}
+            </h1>
+            {% if hero_trip and hero_trip.title %}
+            <p id="hero-title" class="hero-rotating mt-5 text-sm font-semibold uppercase tracking-[0.24em] text-white/65">{{ hero_trip.title }}</p>
+            {% endif %}
+            <p id="hero-description" class="hero-rotating mt-6 max-w-2xl text-base leading-8 text-slate-200/85 xl:max-w-3xl">
+              {% if hero_trip and hero_trip.summary %}
+              {{ hero_trip.summary }}
+              {% elif hero_trip and hero_trip.subtitle %}
+              {{ hero_trip.subtitle }}
+              {% else %}
+              Build AI-powered itineraries, compare routes, and jump into the map explorer from one cinematic travel workspace.
+              {% endif %}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-4 lg:ml-auto lg:self-center">
+            <article class="rounded-[1.45rem] border border-white/10 bg-black/20 p-4 backdrop-blur-xl">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Published</p>
+              <p class="mt-2 text-3xl font-extrabold tracking-[-0.05em] text-white">{{ total_trips }}</p>
+            </article>
+            <article class="rounded-[1.45rem] border border-white/10 bg-black/20 p-4 backdrop-blur-xl">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Bookings</p>
+              <p class="mt-2 text-3xl font-extrabold tracking-[-0.05em] text-white">{{ user_booking_count }}</p>
+            </article>
+          </div>
+        </div>
+
+        {% if hero_trip %}
+        <div class="mt-8 flex flex-wrap gap-3">
+          {% if hero_trip.subtitle %}
+          <span id="hero-subtitle-chip" class="hero-rotating rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+            {{ hero_trip.subtitle }}
+          </span>
+          {% endif %}
+          <span id="hero-duration-chip" class="hero-rotating rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+            {{ hero_trip.duration_days }} Days
+          </span>
+          {% if hero_trip.price_label %}
+          <span id="hero-price-chip" class="hero-rotating rounded-full border border-[#c4b5fd]/25 bg-[#7c5cff]/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#dac9ff]">
+            {{ hero_trip.price_label }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="mt-10 app-panel rounded-[2rem] p-6 md:p-8">
+      <div class="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="section-label">Popular Tours</p>
+          <h2 class="hero-title mt-3 text-3xl font-extrabold md:text-4xl">Published travel library</h2>
+        </div>
+        <p class="muted-copy text-sm">Browse the current public trip cards available in your workspace.</p>
+      </div>
+
+      {% if trips %}
+      <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+        {% for trip in trips %}
+        <article class="flex h-full flex-col overflow-hidden rounded-[1.45rem] border border-white/10 bg-white/5 backdrop-blur-xl transition hover:-translate-y-1 hover:border-[#c4b5fd]/30">
+          <div
+            class="aspect-[5/4] bg-cover bg-center"
+            style="background-image: linear-gradient(180deg, rgba(10,6,18,0.08), rgba(10,6,18,0.58)), url('{% if trip.image_file %}{{ trip.image_file.url }}{% else %}https://images.unsplash.com/photo-1526481280695-3c4691f8b3c6?auto=format&fit=crop&w=800&q=80{% endif %}');"
+          ></div>
+          <div class="flex flex-1 flex-col p-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#bda7ff]">Tour #{{ forloop.counter }}</p>
+            <div class="mt-3 flex items-start justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-extrabold tracking-[-0.04em] text-white">{{ trip.destination }}</h3>
+                <p class="mt-1.5 text-sm font-semibold text-slate-100">{{ trip.title }}</p>
+              </div>
+              {% if trip.price_label %}
+              <span class="rounded-full border border-[#c4b5fd]/20 bg-[#7c5cff]/15 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#dac9ff]">
+                {{ trip.price_label }}
+              </span>
+              {% endif %}
+            </div>
+            <p class="mt-3 min-h-[72px] text-sm leading-6 text-slate-300 line-clamp-3">
+              {{ trip.summary|default:trip.subtitle|default:"A curated trip added by the admin team for quick inspiration on the dashboard." }}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/65">
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{{ trip.duration_days }} Days</span>
+              {% if trip.trip_style %}<span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{{ trip.trip_style }}</span>{% endif %}
+            </div>
+            <div class="mt-auto pt-3">
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+              <span>{{ trip.created_by.username }}</span>
+              <span>{{ trip.created_at|date:"d M Y" }}</span>
+              </div>
+              <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                <a href="{% url 'trip_detail' trip.id %}" class="secondary-button block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition">
+                  View Details
+                </a>
+                <a href="{% url 'book_trip' trip.id %}" class="primary-button block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition">
+                Book This Trip
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="rounded-[1.75rem] border border-dashed border-white/12 bg-white/5 px-6 py-14 text-center backdrop-blur-xl">
+        <h3 class="text-2xl font-extrabold tracking-[-0.04em] text-white">No trips available yet</h3>
+        <p class="muted-copy mt-3 text-sm">Generate a new itinerary to start building the route library.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="mt-10 app-panel rounded-[2rem] p-6 md:p-8">
+      <div class="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="section-label">Trip History</p>
+          <h2 class="hero-title mt-3 text-3xl font-extrabold md:text-4xl">Recently viewed routes</h2>
+        </div>
+        <p class="muted-copy text-sm">Routes you opened on the map are saved here automatically.</p>
+      </div>
+
+      {% if route_histories %}
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {% for history in route_histories %}
+        <article class="rounded-[1.8rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#bda7ff]">Viewed {{ history.viewed_at|date:"d M Y" }}</p>
+          <h3 class="mt-3 text-2xl font-extrabold tracking-[-0.04em] text-white">{{ history.destination }}</h3>
+          <p class="mt-2 text-sm font-semibold text-slate-100">{{ history.route_title }}</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/65">
+            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">{{ history.days }} Days</span>
+            {% if history.total_estimated_cost %}<span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">{{ history.total_estimated_cost }}</span>{% endif %}
+            {% if history.budget %}<span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">{{ history.budget }}</span>{% endif %}
+          </div>
+          <div class="mt-5 flex items-center justify-between text-xs text-slate-400">
+            <span>{{ history.viewed_at|date:"h:i A" }}</span>
+            <span>{{ history.user.username }}</span>
+          </div>
+          <a href="{% url 'open_route_history' history.id %}" class="primary-button mt-5 block w-full rounded-2xl px-4 py-3 text-center text-sm font-semibold transition">
+            Open Route Again
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="rounded-[1.75rem] border border-dashed border-white/12 bg-white/5 px-6 py-14 text-center backdrop-blur-xl">
+        <h3 class="text-2xl font-extrabold tracking-[-0.04em] text-white">No route history yet</h3>
+        <p class="muted-copy mt-3 text-sm">Open a generated route on the map and it will appear here.</p>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+{% if dashboard_trip_data %}
+{{ dashboard_trip_data|json_script:"dashboard-trips-data" }}
+<script>
+  (function () {
+    const profileButton = document.getElementById("profileMenuButton");
+    const profileMenu = document.getElementById("profileMenu");
+
+    if (profileButton && profileMenu) {
+      profileButton.addEventListener("click", function (event) {
+        event.stopPropagation();
+        profileMenu.classList.toggle("is-hidden");
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!profileMenu.contains(event.target) && !profileButton.contains(event.target)) {
+          profileMenu.classList.add("is-hidden");
+        }
+      });
+    }
+
+    const dataElement = document.getElementById("dashboard-trips-data");
+    if (!dataElement) return;
+
+    let tripItems = [];
+    try {
+      tripItems = JSON.parse(dataElement.textContent || "[]");
+    } catch (error) {
+      tripItems = [];
+    }
+
+    if (!Array.isArray(tripItems) || tripItems.length < 2) return;
+
+    const normalizedTrips = tripItems.map((trip) => ({
+      destination: (trip.destination || "").toUpperCase(),
+      title: trip.title || "",
+      subtitle: trip.subtitle || "",
+      summary: trip.summary || trip.subtitle || "A curated travel experience from your trip library.",
+      duration_days: trip.duration_days || "",
+      price_label: trip.price_label || "",
+    }));
+
+    const destinationNode = document.getElementById("hero-destination");
+    const titleNode = document.getElementById("hero-title");
+    const descriptionNode = document.getElementById("hero-description");
+    const subtitleChipNode = document.getElementById("hero-subtitle-chip");
+    const durationChipNode = document.getElementById("hero-duration-chip");
+    const priceChipNode = document.getElementById("hero-price-chip");
+
+    if (!destinationNode || !descriptionNode) return;
+
+    let currentIndex = 0;
+
+    const animatedNodes = [
+      destinationNode,
+      titleNode,
+      descriptionNode,
+      subtitleChipNode,
+      durationChipNode,
+      priceChipNode,
+    ].filter(Boolean);
+
+    const updateHero = (trip) => {
+      destinationNode.textContent = trip.destination || "ESCAPE";
+      if (titleNode) {
+        titleNode.textContent = trip.title || "";
+      }
+      descriptionNode.textContent = trip.summary;
+
+      if (subtitleChipNode) {
+        subtitleChipNode.textContent = trip.subtitle || "Featured trip";
+        subtitleChipNode.style.display = trip.subtitle ? "inline-flex" : "none";
+      }
+
+      if (durationChipNode) {
+        durationChipNode.textContent = trip.duration_days ? `${trip.duration_days} Days` : "";
+      }
+
+      if (priceChipNode) {
+        priceChipNode.textContent = trip.price_label || "";
+        priceChipNode.style.display = trip.price_label ? "inline-flex" : "none";
+      }
+    };
+
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % normalizedTrips.length;
+      animatedNodes.forEach((node) => node.classList.add("is-fading"));
+      setTimeout(() => {
+        updateHero(normalizedTrips[currentIndex]);
+        animatedNodes.forEach((node) => node.classList.remove("is-fading"));
+      }, 350);
+    }, 5000);
+  })();
+</script>
+{% endif %}
+{% endblock %}

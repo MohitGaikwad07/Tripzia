@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Plan Trip | Travel Planner{% endblock %}
+
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 md:px-8 md:py-10">
+  <div class="mx-auto max-w-6xl">
+    <section class="app-panel mb-8 rounded-[2rem] p-8 md:p-10">
+      <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <div>
+          <p class="section-label">Trip Generator</p>
+          <h1 class="hero-title mt-4 text-4xl font-extrabold md:text-6xl">
+            Turn a rough brief
+            <span class="block">into mapped itinerary options</span>
+          </h1>
+          <p class="muted-copy mt-5 max-w-2xl text-base leading-8">
+            Set the route, trip length, activities, and budget. The planner will generate multiple route ideas that you can compare and open on the map.
+          </p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+            <p class="section-label">Step 1</p>
+            <p class="mt-3 text-2xl font-extrabold tracking-[-0.04em] text-white">Set route</p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+            <p class="section-label">Step 2</p>
+            <p class="mt-3 text-2xl font-extrabold tracking-[-0.04em] text-white">Tune preferences</p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+            <p class="section-label">Step 3</p>
+            <p class="mt-3 text-2xl font-extrabold tracking-[-0.04em] text-white">Generate options</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <form method="POST" action="{% url 'generate_trip' %}" class="app-panel rounded-[2rem] p-6 md:p-10">
+      {% csrf_token %}
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Starting Location</label>
+          <input type="text" name="start_location" required placeholder="Delhi, Mumbai, Jaipur..." class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition placeholder:text-slate-500">
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Destination</label>
+          <input type="text" name="destination" required placeholder="Where are you heading?" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition placeholder:text-slate-500">
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-6 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Travel Date</label>
+          <input type="date" name="date" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-200">Number of Days</label>
+          <input type="number" name="days" value="3" min="1" max="14" class="field-shell w-full rounded-2xl px-4 py-4 text-base outline-none transition">
+        </div>
+      </div>
+
+      <div class="mt-10">
+        <h2 class="hero-title text-2xl font-extrabold">Activities</h2>
+        <p class="muted-copy mt-2 text-sm">Choose the travel themes that should shape the itinerary. If you select multiple categories, the generated plan will try to include all of them.</p>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {% for value, name in activities %}
+          <label class="cursor-pointer">
+            <input type="checkbox" name="activities" value="{{ value }}" class="peer sr-only">
+            <div class="rounded-3xl border border-white/10 bg-white/5 px-4 py-5 text-center text-slate-100 backdrop-blur-xl transition peer-checked:border-[#c4b5fd]/30 peer-checked:bg-[#7c5cff]/25 peer-checked:text-white">
+              <span class="text-base font-semibold">{{ name }}</span>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-10">
+        <h2 class="hero-title text-2xl font-extrabold">Budget level</h2>
+        <p class="muted-copy mt-2 text-sm">Set the cost range the route should aim for.</p>
+        <div class="mt-5 grid gap-4 md:grid-cols-3">
+          {% for value, name in budgets %}
+          <label class="cursor-pointer">
+            <input type="radio" name="budget" value="{{ value }}" class="peer sr-only" {% if value == "medium" %}checked{% endif %}>
+            <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-6 text-slate-100 backdrop-blur-xl transition peer-checked:border-[#c4b5fd]/30 peer-checked:bg-[#7c5cff]/20 peer-checked:text-white">
+              <p class="text-sm text-slate-400">Budget</p>
+              <p class="mt-3 text-2xl font-extrabold tracking-[-0.04em]">{{ name }}</p>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-10">
+        <h2 class="hero-title text-2xl font-extrabold">Quality rating</h2>
+        <p class="muted-copy mt-2 text-sm">Tell the planner how highly rated your recommended stops should be.</p>
+        <div class="mt-5 grid gap-4 md:grid-cols-3">
+          {% for value, name in rating_options %}
+          <label class="cursor-pointer">
+            <input type="radio" name="rating_preference" value="{{ value }}" class="peer sr-only" {% if value == "4_plus" %}checked{% endif %}>
+            <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-6 text-slate-100 backdrop-blur-xl transition peer-checked:border-[#c4b5fd]/30 peer-checked:bg-[#7c5cff]/20 peer-checked:text-white">
+              <p class="text-sm text-slate-400">Minimum rating</p>
+              <p class="mt-3 text-2xl font-extrabold tracking-[-0.04em]">{{ name }}</p>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <a href="{% url 'dashboard' %}" class="text-sm font-semibold text-[#c8b4ff] hover:text-white">Back to dashboard</a>
+        <button type="submit" id="submitBtn" class="primary-button rounded-2xl px-8 py-4 text-base font-semibold transition">
+          Generate itinerary options
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="loadingOverlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#07040f]/80 px-4 backdrop-blur-sm">
+  <div class="app-panel w-full max-w-xl rounded-[2rem] p-8">
+    <div class="mb-5 flex items-center gap-3">
+      <div class="h-3 w-3 animate-pulse rounded-full bg-[#c8b4ff]"></div>
+      <div class="h-3 w-3 animate-pulse rounded-full bg-[#8b5cf6]" style="animation-delay: 0.2s;"></div>
+      <div class="h-3 w-3 animate-pulse rounded-full bg-[#6d4aff]" style="animation-delay: 0.4s;"></div>
+    </div>
+    <h2 class="hero-title text-3xl font-extrabold">Generating route options</h2>
+    <p class="muted-copy mt-3 text-base leading-7">
+      The planner is assembling route structure, destination stops, and day-by-day ideas for your trip.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelector("form").addEventListener("submit", function () {
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("loadingOverlay").classList.remove("hidden");
+    document.getElementById("loadingOverlay").classList.add("flex");
+  });
+</script>
+{% endblock %}

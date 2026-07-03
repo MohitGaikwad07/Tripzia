@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ trip.destination }} | Trip Details{% endblock %}
+
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay px-4 py-8 md:px-8 md:py-10">
+  <div class="mx-auto max-w-7xl">
+    <section class="relative overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#0d0818] shadow-[0_30px_90px_rgba(5,2,16,0.45)]">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style="background-image: linear-gradient(180deg, rgba(7,4,15,0.22), rgba(7,4,15,0.88)), url('{% if trip.image_file %}{{ trip.image_file.url }}{% else %}https://images.unsplash.com/photo-1526481280695-3c4691f8b3c6?auto=format&fit=crop&w=1600&q=80{% endif %}');"
+      ></div>
+      <div class="relative z-10 p-6 md:p-10">
+        <a href="{% url 'dashboard' %}" class="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 backdrop-blur transition hover:border-[#c4b5fd]/30 hover:bg-white/10">Back to dashboard</a>
+        <div class="mt-8 max-w-4xl">
+          <p class="section-label">Trip Overview</p>
+          <h1 class="hero-title mt-4 text-5xl font-extrabold md:text-7xl">{{ trip.destination }}</h1>
+          <p class="mt-4 text-xl font-semibold text-slate-100">{{ trip.title }}</p>
+          <p class="mt-6 max-w-3xl text-base leading-8 text-slate-200/90">{{ trip.summary|default:trip.subtitle }}</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <span class="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">{{ trip.duration_days }} Days</span>
+            {% if trip.price_label %}<span class="rounded-full border border-[#c4b5fd]/25 bg-[#7c5cff]/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#dac9ff]">{{ trip.price_label }}</span>{% endif %}
+            {% if trip.trip_style %}<span class="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">{{ trip.trip_style }}</span>{% endif %}
+            {% if trip.review_rating %}<span class="rounded-full border border-amber-300/20 bg-amber-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Rating {{ trip.review_rating }}/5</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <section class="app-panel rounded-[2rem] p-6 md:p-8">
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <p class="section-label">Places</p>
+            <h2 class="hero-title mt-3 text-3xl font-extrabold">Places covered</h2>
+          </div>
+          <a href="{% url 'book_trip' trip.id %}" class="primary-button rounded-2xl px-6 py-3 text-sm font-semibold transition">Book This Trip</a>
+        </div>
+
+        {% if places_covered %}
+        <div class="grid gap-4 md:grid-cols-2">
+          {% for place in places_covered %}
+          <article class="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#bda7ff]">Stop {{ forloop.counter }}</p>
+            <h3 class="mt-3 text-xl font-extrabold text-white">{{ place }}</h3>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="rounded-[1.5rem] border border-dashed border-white/12 bg-white/5 px-6 py-10 text-center text-slate-400">
+          Detailed places have not been added for this trip yet.
+        </div>
+        {% endif %}
+
+        {% if trip.review_summary %}
+        <div class="mt-8 rounded-[1.5rem] border border-white/10 bg-white/5 p-6">
+          <p class="section-label">Reviews</p>
+          <p class="mt-4 text-base leading-8 text-slate-300">{{ trip.review_summary }}</p>
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="space-y-8">
+        <section class="app-panel rounded-[2rem] p-6 md:p-8">
+          <p class="section-label">Pricing</p>
+          <h2 class="hero-title mt-3 text-3xl font-extrabold">What to expect</h2>
+          <div class="mt-6 space-y-3">
+            {% if pricing_points %}
+              {% for point in pricing_points %}
+              <div class="rounded-[1.3rem] border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-300">{{ point }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="rounded-[1.3rem] border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-300">
+                {{ trip.price_label|default:"Pricing details will be updated by the admin." }}
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="app-panel rounded-[2rem] p-6 md:p-8">
+          <p class="section-label">Highlights</p>
+          <h2 class="hero-title mt-3 text-3xl font-extrabold">Included information</h2>
+          <div class="mt-6 space-y-3">
+            {% if inclusions_list %}
+              {% for item in inclusions_list %}
+              <div class="rounded-[1.3rem] border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-300">{{ item }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="rounded-[1.3rem] border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-300">
+                No extra inclusions have been added for this trip yet.
+              </div>
+            {% endif %}
+          </div>
+        </section>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

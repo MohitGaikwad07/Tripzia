@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen contour-bg noise-overlay p-6 text-white">
+  <div class="mx-auto max-w-7xl">
+    <header class="app-panel mb-8 rounded-[2rem] p-6 md:p-8">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="section-label">Admin Dashboard</p>
+          <h1 class="hero-title mt-3 text-4xl font-extrabold md:text-5xl">Manage users and published trips</h1>
+          <p class="muted-copy mt-4 max-w-2xl text-base leading-8">
+            Monitor account activity, review published trips, and manage operational data from one central control panel.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a href="{% url 'logout' %}" class="secondary-button rounded-2xl px-5 py-4 text-center text-sm font-semibold transition">
+            Logout
+          </a>
+          <a href="{% url 'add_booking' %}" class="secondary-button rounded-2xl px-5 py-4 text-center text-sm font-semibold transition">
+            Add Booking
+          </a>
+          <a href="{% url 'add_user' %}" class="secondary-button rounded-2xl px-5 py-4 text-center text-sm font-semibold transition">
+            Add User
+          </a>
+          <a href="{% url 'add_trip' %}" class="primary-button rounded-2xl px-5 py-4 text-center text-sm font-semibold transition">
+            Add Trip
+          </a>
+        </div>
+      </div>
+    </header>
+
+    {% if messages %}
+    <div class="mb-8 space-y-3">
+      {% for message in messages %}
+      <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4 text-sm font-medium text-emerald-100">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="mb-8 grid gap-6 md:grid-cols-4">
+      <div class="app-panel rounded-[1.75rem] p-6">
+        <p class="section-label">Total Users</p>
+        <p class="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-white">{{ total_users }}</p>
+      </div>
+      <div class="app-panel rounded-[1.75rem] p-6">
+        <p class="section-label">Total Trips</p>
+        <p class="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-white">{{ total_trips }}</p>
+      </div>
+      <div class="app-panel rounded-[1.75rem] p-6">
+        <p class="section-label">Total Bookings</p>
+        <p class="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-white">{{ total_bookings }}</p>
+      </div>
+      <div class="app-panel rounded-[1.75rem] p-6">
+        <p class="section-label">Route History</p>
+        <p class="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-white">{{ total_route_histories }}</p>
+      </div>
+    </section>
+
+    <section class="app-panel mb-8 overflow-hidden rounded-[2rem]">
+      <div class="border-b border-white/10 px-6 py-5 text-lg font-semibold text-white">Users</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-white/5 text-slate-300">
+            <tr>
+              <th class="p-4">Username</th>
+              <th class="p-4">Email</th>
+              <th class="p-4">Role</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr class="border-t border-white/8">
+              <td class="p-4 text-white">{{ user.username }}</td>
+              <td class="p-4 text-slate-300">{{ user.email }}</td>
+              <td class="p-4">
+                {% if user.is_staff %}
+                  <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-semibold text-emerald-300">Admin</span>
+                {% else %}
+                  <span class="rounded-full bg-white/8 px-3 py-1 text-sm font-semibold text-slate-300">User</span>
+                {% endif %}
+              </td>
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2">
+                  <a href="{% url 'edit_user' user.id %}" class="rounded-xl bg-amber-500/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">
+                    Edit
+                  </a>
+                  <form method="POST" action="{% url 'delete_user' user.id %}" onsubmit="return confirm('Delete this user?');">
+                    {% csrf_token %}
+                    <button type="submit" class="rounded-xl bg-rose-600/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="app-panel overflow-hidden rounded-[2rem]">
+      <div class="border-b border-white/10 px-6 py-5 text-lg font-semibold text-white">Trips</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-white/5 text-slate-300">
+            <tr>
+              <th class="p-4">Preview</th>
+              <th class="p-4">Title</th>
+              <th class="p-4">Destination</th>
+              <th class="p-4">Details</th>
+              <th class="p-4">Status</th>
+              <th class="p-4">Created By</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for trip in trips %}
+            <tr class="border-t border-white/8">
+              <td class="p-4">
+                <div
+                  class="h-16 w-24 rounded-2xl border border-white/10 bg-cover bg-center"
+                  style="background-image: url('{% if trip.image_file %}{{ trip.image_file.url }}{% else %}https://images.unsplash.com/photo-1526481280695-3c4691f8b3c6?auto=format&fit=crop&w=400&q=80{% endif %}');"
+                ></div>
+              </td>
+              <td class="p-4 text-white">
+                <div class="font-semibold">{{ trip.title }}</div>
+                <div class="mt-1 text-sm text-slate-400">{{ trip.subtitle|default:"No subtitle" }}</div>
+              </td>
+              <td class="p-4 text-slate-300">{{ trip.destination }}</td>
+              <td class="p-4 text-slate-300">
+                <div class="flex flex-wrap gap-2">
+                  <span class="rounded-full bg-white/8 px-3 py-1 text-xs font-semibold text-slate-300">{{ trip.duration_days }} Days</span>
+                  {% if trip.price_label %}<span class="rounded-full bg-[#7c5cff]/15 px-3 py-1 text-xs font-semibold text-[#d8c6ff]">{{ trip.price_label }}</span>{% endif %}
+                  {% if trip.trip_style %}<span class="rounded-full bg-white/8 px-3 py-1 text-xs font-semibold text-slate-300">{{ trip.trip_style }}</span>{% endif %}
+                </div>
+              </td>
+              <td class="p-4">
+                {% if trip.is_public %}
+                  <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-semibold text-emerald-300">Published</span>
+                {% else %}
+                  <span class="rounded-full bg-amber-500/15 px-3 py-1 text-sm font-semibold text-amber-300">Draft</span>
+                {% endif %}
+              </td>
+              <td class="p-4 text-slate-300">{{ trip.created_by.username }}</td>
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2">
+                  <a href="{% url 'edit_trip' trip.id %}" class="rounded-xl bg-amber-500/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">
+                    Edit
+                  </a>
+                  <form method="POST" action="{% url 'delete_trip' trip.id %}" onsubmit="return confirm('Delete this trip?');">
+                    {% csrf_token %}
+                    <button type="submit" class="rounded-xl bg-rose-600/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% if trip.summary %}
+            <tr class="border-t border-white/6 bg-white/[0.015]">
+              <td class="p-4"></td>
+              <td colspan="6" class="p-4 text-sm leading-7 text-slate-400">{{ trip.summary }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="mt-8 app-panel overflow-hidden rounded-[2rem]">
+      <div class="border-b border-white/10 px-6 py-5 text-lg font-semibold text-white">Bookings</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-white/5 text-slate-300">
+            <tr>
+              <th class="p-4">Traveler</th>
+              <th class="p-4">Trip</th>
+              <th class="p-4">Destination</th>
+              <th class="p-4">Count</th>
+              <th class="p-4">Phone</th>
+              <th class="p-4">Booked On</th>
+              <th class="p-4">Request</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+            <tr class="border-t border-white/8">
+              <td class="p-4">
+                <div class="font-semibold text-white">{{ booking.traveler_name }}</div>
+                <div class="mt-1 text-sm text-slate-400">{{ booking.traveler_email }}</div>
+                <div class="mt-1 text-xs text-slate-500">User: {{ booking.user.username }}</div>
+              </td>
+              <td class="p-4 text-white">{{ booking.trip.title }}</td>
+              <td class="p-4 text-slate-300">{{ booking.trip.destination }}</td>
+              <td class="p-4 text-slate-300">{{ booking.travelers_count }}</td>
+              <td class="p-4 text-slate-300">{{ booking.traveler_phone|default:"-" }}</td>
+              <td class="p-4 text-slate-300">{{ booking.booked_at|date:"d M Y, h:i A" }}</td>
+              <td class="p-4 text-slate-400">{{ booking.special_request|default:"-" }}</td>
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2">
+                  <a href="{% url 'edit_booking' booking.id %}" class="rounded-xl bg-amber-500/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">
+                    Edit
+                  </a>
+                  <form method="POST" action="{% url 'delete_booking' booking.id %}" onsubmit="return confirm('Delete this booking?');">
+                    {% csrf_token %}
+                    <button type="submit" class="rounded-xl bg-rose-600/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr class="border-t border-white/8">
+              <td colspan="8" class="p-6 text-center text-slate-400">No bookings yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="mt-8 app-panel overflow-hidden rounded-[2rem]">
+      <div class="border-b border-white/10 px-6 py-5 text-lg font-semibold text-white">Route History</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-white/5 text-slate-300">
+            <tr>
+              <th class="p-4">User</th>
+              <th class="p-4">Route</th>
+              <th class="p-4">Destination</th>
+              <th class="p-4">Days</th>
+              <th class="p-4">Budget</th>
+              <th class="p-4">Cost</th>
+              <th class="p-4">Viewed On</th>
+              <th class="p-4">Notes</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for history in route_histories %}
+            <tr class="border-t border-white/8">
+              <td class="p-4 text-white">{{ history.user.username }}</td>
+              <td class="p-4 text-white">{{ history.route_title }}</td>
+              <td class="p-4 text-slate-300">{{ history.destination }}</td>
+              <td class="p-4 text-slate-300">{{ history.days }}</td>
+              <td class="p-4 text-slate-300">{{ history.budget|default:"-" }}</td>
+              <td class="p-4 text-slate-300">{{ history.total_estimated_cost|default:"-" }}</td>
+              <td class="p-4 text-slate-300">{{ history.viewed_at|date:"d M Y, h:i A" }}</td>
+              <td class="p-4 text-slate-400">{{ history.admin_notes|default:"-" }}</td>
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2">
+                  <a href="{% url 'edit_route_history' history.id %}" class="rounded-xl bg-amber-500/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">
+                    Edit
+                  </a>
+                  <form method="POST" action="{% url 'delete_route_history' history.id %}" onsubmit="return confirm('Delete this route history?');">
+                    {% csrf_token %}
+                    <button type="submit" class="rounded-xl bg-rose-600/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr class="border-t border-white/8">
+              <td colspan="9" class="p-6 text-center text-slate-400">No route history saved yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+AI Trip Map | Travel Planner
+{% endblock %}
+
+{% block content %}
+
+<!-- main layout -->
+<div class="flex h-screen w-screen">
+
+    <!-- LEFT AI SIDEBAR -->
+    {% include "planner/ai_sidebar.html" %}
+
+    <!-- RIGHT MAP AREA -->
+    {% include "planner/map_area.html" %}
+
+</div>
+
+<!-- Toast Notification -->
+{% include "planner/toast.html" %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  // Hardcode showRoute to 1 since this is exclusively the AI map!
+  const showRoute = "1";
+
+  let tripPlacesFromBackend = [];
+  try {
+      const placesStr = "{{ trip.places|escapejs }}";
+      if (placesStr && placesStr.trim() !== "[]" && placesStr.trim() !== "") {
+          tripPlacesFromBackend = JSON.parse(placesStr);
+      }
+  } catch(e) {
+      console.error("Error parsing trip places from backend", e);
+  }
+</script>
+
+<script src="{% static 'planner/maps.js' %}?v={% now 'U' %}"></script>
+
+{% endblock %}
